@@ -607,7 +607,14 @@ class WhatsAPIDriver(object):
         :param id: ID
         :type id: str
         """
-        return b64decode(self.wapi_functions.getProfilePicFromId(id))
+        code = self.wapi_functions.getProfilePicFromId(id)
+        if "1;" in code:
+            self.logger.info('getProfilePicFromId {}'.format(code))
+            return None
+        elif "0;" in code:
+            self.logger.info('getProfilePicFromId {}'.format(code))
+            return None 
+        return b64decode(code)
 
     def get_profile_pic_small_from_id(self, id):
         """

@@ -1016,7 +1016,7 @@ window.WAPI.getProfilePicFromId = function(id, done) {
 
 window.WAPI.downloadFileWithCredentials = function (url, done) {
     let xhr = new XMLHttpRequest();
-
+    xhr.timeout = 3000;
 
     xhr.onload = function () {
         if (xhr.readyState == 4) {
@@ -1028,11 +1028,17 @@ window.WAPI.downloadFileWithCredentials = function (url, done) {
                 };
             } else {
                 console.error(xhr.statusText);
+                done("0;"+xhr.statusText);
             }
         } else {
-            console.log(err);
-            done(false);
+            console.log(xhr.statusText);
+            done("0;"+xhr.statusText);
         }
+    };
+
+    xhr.ontimeout = function (err) {
+        console.log(err);
+        done("1; Timeout");
     };
 
     xhr.open("GET", url, true);
@@ -1044,7 +1050,7 @@ window.WAPI.downloadFileWithCredentials = function (url, done) {
 
 window.WAPI.downloadFile = function (url, done) {
     let xhr = new XMLHttpRequest();
-
+    xhr.timeout = 15000;
 
     xhr.onload = function () {
         if (xhr.readyState == 4) {
