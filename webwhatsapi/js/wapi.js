@@ -913,7 +913,8 @@ window.WAPI.getUnreadMessages = function (includeMe, includeNotifications, use_u
         const messages = messageGroupObj.msgs.models;
         for (let i = messages.length - 1; i >= 0; i--) {
             let messageObj = messages[i];
-            if (typeof (messageObj.isNewMsg) != "boolean" || messageObj.isNewMsg === false) {
+
+            if (typeof (messageObj.isNewMsg) != "boolean" || messageObj.isNewMsg === false ) {
                 continue;
             } else {
                 messageObj.isNewMsg = false;
@@ -1062,11 +1063,16 @@ window.WAPI.downloadFile = function (url, done) {
                 };
             } else {
                 console.error(xhr.statusText);
+                done(false);
             }
         } else {
             console.log(err);
             done(false);
         }
+    };
+    xhr.ontimeout = function (err) {
+        console.log(err);
+        done(false);
     };
 
     xhr.open("GET", url, true);
