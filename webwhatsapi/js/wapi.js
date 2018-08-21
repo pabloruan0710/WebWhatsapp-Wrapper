@@ -1222,48 +1222,48 @@ window.WAPI.getBufferedNewMessages = function(done) {
 };
 /** End new messages observable functions **/
 
-// window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-//     var chat = WAPI.getChat(chatid);
-//     if (chat !== undefined) {
-//         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-//         var mc = new Store.MediaCollection();
-//         mc.processFiles([mediaBlob], chat, 1).then(() => {
-//             var media = mc.models[0];
-//             media.sendToChat(chat, {caption: caption});
-//             done(true);
-//         });
-//     } else {
-//         done(false);
-//     }
-//     return true;
-// };
-
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-    
-    if (window.Store.Chat.length == 0)
-        return false;
-
-    firstChat = Store.Chat.models[0];
-    var originalID = firstChat.id;
-    firstChat.id = id;
-    var chat = firstChat;
-    
-
+    var chat = WAPI.getChat(chatid);
     if (chat !== undefined) {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection();
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.sendToChat(chat, {caption: caption});
-            firstChat.id = originalID;
             done(true);
         });
     } else {
-        firstChat.id = originalID;
         done(false);
     }
     return true;
 };
+
+// window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+    
+//     if (window.Store.Chat.length == 0)
+//         return false;
+
+//     firstChat = Store.Chat.models[0];
+//     var originalID = firstChat.id;
+//     firstChat.id = id;
+//     var chat = firstChat;
+    
+
+//     if (chat !== undefined) {
+//         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
+//         var mc = new Store.MediaCollection();
+//         mc.processFiles([mediaBlob], chat, 1).then(() => {
+//             var media = mc.models[0];
+//             media.sendToChat(chat, {caption: caption});
+//             firstChat.id = originalID;
+//             done(true);
+//         });
+//     } else {
+//         firstChat.id = originalID;
+//         done(false);
+//     }
+//     return true;
+// };
 
 
 window.WAPI.base64ImageToFile = function (b64Data, filename) {
