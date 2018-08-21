@@ -1229,8 +1229,14 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
         var mc = new Store.MediaCollection();
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
-            media.sendToChat(chat, {caption: caption});
-            done(true);
+            try{
+                media.sendToChat(chat, {caption: caption});
+                done(true);
+            }catch(e){
+                //WAPI.sendMessageToID(chatid,'Olá')
+                console.log("Erro ao enviar imagem: "+e);
+                done(false);
+            }
         });
     } else {
         done(false);
