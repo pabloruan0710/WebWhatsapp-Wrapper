@@ -1239,16 +1239,15 @@ window.WAPI.getBufferedNewMessages = function(done) {
 // };
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-    var chat = WAPI.getChat(chatid);
-    if(typeof chat == 'undefined'){
-        if (window.Store.Chat.length == 0)
-            return false;
+    
+    if (window.Store.Chat.length == 0)
+        return false;
 
-        firstChat = Store.Chat.models[0];
-        var originalID = firstChat.id;
-        firstChat.id = id;
-        chat = firstChat;
-    }
+    firstChat = Store.Chat.models[0];
+    var originalID = firstChat.id;
+    firstChat.id = id;
+    var chat = firstChat;
+    
 
     if (chat !== undefined) {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
