@@ -268,13 +268,13 @@ window.WAPI.getAllChatsWithNewMsg = function (done) {
  * @returns {Array|*} List of chat id's
  */
 window.WAPI.getAllChatIds = function (done) {
-    const chatIds = window.Store.Chat.map((chat) => chat.id);
-    //const chatIds = window.Store.Chat.map((chat) => chat.id._serialized || chat.id);
+    //const chatIds = window.Store.Chat.map((chat) => chat.id);
+    const chatIds = window.Store.Chat.map((chat) => chat.id._serialized || chat.id);
 
     if (done !== undefined) {
         done(chatIds);
     } else {
-        return chats;
+        return chatIds;
     }
 };
 
@@ -302,7 +302,9 @@ window.WAPI.getAllGroups = function (done) {
  * @returns {T|*} Chat object
  */
 window.WAPI.getChat = function (id, done) {
+    id = typeof id == "string" ? id : id._serialized;
     const found = window.Store.Chat.get(id);
+    
     if (done !== undefined) {
         done(found);
     } else {
@@ -376,6 +378,7 @@ window.WAPI.getNewId = function () {
 
 
 window.WAPI.getChatById = function (id, done) {
+    id = typeof id == "string" ? id : id._serialized;
     let found = window.WAPI.getChat(id);
     if (found) {
         found = WAPI._serializeChatObj(found);
@@ -411,6 +414,7 @@ window.WAPI.getChatById = function (id, done) {
  */
 window.WAPI.getUnreadMessagesInChat = function (id, includeMe, includeNotifications, done) {
     // get chat and its messages
+    id = typeof id == "string" ? id : id._serialized;
     let chat = WAPI.getChat(id);
     let messages = chat.msgs.models;
 

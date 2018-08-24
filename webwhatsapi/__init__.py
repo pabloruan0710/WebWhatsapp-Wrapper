@@ -459,14 +459,14 @@ class WhatsAPIDriver(object):
         :rtype: Chat
         """
         for chat in self.get_all_chats():
-            if not isinstance(chat, UserChat) or number not in chat.id:
+            if not isinstance(chat, UserChat) or number not in chat.id["_serialized"]:
                 continue
             return chat
         if createIfNotFound:
             self.create_chat_by_number(number)
             self.wait_for_login()
             for chat in self.get_all_chats():
-                if not isinstance(chat, UserChat) or number not in chat.id:
+                if not isinstance(chat, UserChat) or number not in chat.id["_serialized"]:
                     continue
                 return chat
 
