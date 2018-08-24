@@ -61,6 +61,7 @@ class Message(WhatsappObject):
         self.sender = Contact(js_obj["sender"], driver) if js_obj["sender"] else False
         self.timestamp = datetime.fromtimestamp(js_obj["timestamp"])
         self.chat_id = js_obj['chatId']
+        
 
         if js_obj["content"]:
             self.content = js_obj["content"]
