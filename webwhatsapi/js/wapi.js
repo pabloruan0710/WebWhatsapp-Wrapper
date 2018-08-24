@@ -765,7 +765,13 @@ window.WAPI.sendMessageToID = function (id, message, done) {
 
     firstChat = Store.Chat.models[0];
     var originalID = firstChat.id;
-    firstChat.id = id;
+    if (typeof originalID === 'string') {
+        firstChat.id = id;
+      } else {
+        originalID.server = 'c.us'
+        originalID._serialized = id
+        originalID.user = id.split('@')[0]
+      }
     if (done !== undefined) {
         firstChat.sendMessage(message).then(function () {
             firstChat.id = originalID;
