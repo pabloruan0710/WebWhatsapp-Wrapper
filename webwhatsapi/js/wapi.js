@@ -1241,6 +1241,7 @@ window.WAPI.getBufferedNewMessages = function(done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
+    chatid = typeof chatid == "string" ? chatid : chatid._serialized;
     var chat = WAPI.getChat(chatid);
     if (chat !== undefined) {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
