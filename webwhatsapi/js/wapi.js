@@ -117,6 +117,17 @@ window.WAPI._serializeContactObj = (obj) => {
     });
 };
 
+window.WAPI.isLoggedIn = function (done) {
+    // Contact always exists when logged in
+    const isLogged = window.Store.Contact && window.Store.Contact.checksum !== undefined;
+
+    if (done !== undefined) {
+        done(isLogged);
+    }
+
+    return isLogged;
+};
+
 window.WAPI._serializeMessageObj = (obj) => {
     if (obj == undefined) {
         return null;
@@ -256,12 +267,13 @@ window.WAPI.getAllChatsWithNewMsg = function (done) {
  * @returns {Array|*} List of chat id's
  */
 window.WAPI.getAllChatIds = function (done) {
-    const chatIds = window.Store.Chat.map((chat) => chat.id);
+    //const chatIds = window.Store.Chat.map((chat) => chat.id);
+    const chatIds = window.Store.Chat.map((chat) => chat.id._serialized || chat.id);
 
     if (done !== undefined) {
         done(chatIds);
     } else {
-        return chats;
+        return chatIds;
     }
 };
 

@@ -245,7 +245,8 @@ class WhatsAPIDriver(object):
         # it becomes ridiculously slow if the element is not found.
 
         # instead we use this (temporary) solution:
-        return 'class="app _3dqpi two"' in self.driver.page_source
+        #return 'class="app _3dqpi two"' in self.driver.page_source
+        return self.wapi_functions.isLoggedIn()
 
     def wait_for_login(self, timeout=90):
         """Waits for the QR to go away"""
