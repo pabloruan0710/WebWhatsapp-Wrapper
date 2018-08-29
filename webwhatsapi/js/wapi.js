@@ -881,8 +881,10 @@ window.WAPI.sendSeen = function (id, done) {
 
         let temp = {};
         temp.name = Chats[chat].formattedTitle;
-        temp.id = Chats[chat].id;
-        if (temp.id._serialized === id) {
+        temp.id = typeof Chats[chat].id == "string" ? Chats[chat].id : Chats[chat].id._serialized;
+        id = typeof id == "string" ? id : id._serialized;
+                
+        if (temp.id === id) {
             if (done !== undefined) {
                 Chats[chat].sendSeen(false).then(function () {
                     done(true);
