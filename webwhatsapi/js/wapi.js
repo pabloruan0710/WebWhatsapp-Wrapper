@@ -304,12 +304,8 @@ window.WAPI.getAllGroups = function (done) {
 window.WAPI.getChat = function (id, done) {
     id = typeof id == "string" ? id : id._serialized;
     const found = window.Store.Chat.get(id);
-    
-    if (done !== undefined) {
-        done(found);
-    } else {
-        return found;
-    }
+    if (done !== undefined) done(found);
+    return found;
 };
 
 window.WAPI.getChatByName = function (name, done) {
@@ -768,9 +764,9 @@ window.WAPI.sendMessageToID = function (id, message, done) {
     if (window.Store.Chat.length == 0)
         return false;
 
+    
     firstChat = Store.Chat.models[0];
     var originalID = firstChat.id;
-    
     firstChat.id = typeof originalID == "string" ? id : new window.Store.UserConstructor(id);
     if (done !== undefined) {
         firstChat.sendMessage(message).then(function () {
@@ -784,123 +780,88 @@ window.WAPI.sendMessageToID = function (id, message, done) {
         return true;
     }
 
-    if (done !== undefined)
-        done();
-    else
-        return false;
-
-    return true;
+    if (done !== undefined) done(false);
+    return false;
 }
 
 window.WAPI.sendMessage = function (id, message, done) {
-    const Chats = window.Store.Chat.models;
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+        if (done !== undefined) {
+            chat.sendMessage(message).then(function () {
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
 
-    for (const chat in Chats) {
-        if (isNaN(chat)) {
-            continue;
-        }
+                var trials = 0;
 
-        let temp = {};
-        temp.name = Chats[chat].formattedTitle;
-        temp.id = Chats[chat].id;
-        if (temp.id._serialized === id) {
-            if (done !== undefined) {
-                Chats[chat].sendMessage(message).then(function () {
-                    function sleep(ms) {
-                        return new Promise(resolve => setTimeout(resolve, ms));
-                    }
+                function check() {
+                    for (let i = chat.msgs.models.length - 1; i >= 0; i--) {
+                        let msg = chat.msgs.models[i];
 
-                    var trials = 0;
-
-                    function check() {
-                        for (let i = Chats[chat].msgs.models.length - 1; i >= 0; i--) {
-                            let msg = Chats[chat].msgs.models[i];
-
-                            if (!msg.senderObj.isMe || msg.body != message) {
-                                continue;
-                            }
-                            done(WAPI._serializeMessageObj(msg));
-                            return True;
+                        if (!msg.senderObj.isMe || msg.body != message) {
+                            continue;
                         }
-                        trials += 1;
-                        console.log(trials);
-                        if (trials > 30) {
-                            done(true);
-                            return;
-                        }
-                        sleep(500).then(check);
+                        done(WAPI._serializeMessageObj(msg));
+                        return True;
                     }
-                    check();
-                });
-                return true;
-            } else {
-                Chats[chat].sendMessage(message);
-                return true;
-            }
+                    trials += 1;
+                    console.log(trials);
+                    if (trials > 30) {
+                        done(true);
+                        return;
+                    }
+                    sleep(500).then(check);
+                }
+                check();
+            });
+            return true;
+        } else {
+            chat.sendMessage(message);
+            return true;
         }
+    } else {
+        if (done !== undefined) done(false);
+        return false;
     }
 };
 
 window.WAPI.sendMessage2 = function (id, message, done) {
-    const Chats = window.Store.Chat.models;
-
-    for (const chat in Chats) {
-        if (isNaN(chat)) {
-            continue;
-        }
-
-        let temp = {};
-        temp.name = Chats[chat].formattedTitle;
-        temp.id = Chats[chat].id;
-        if (temp.id._serialized === id) {
-            try {
-                if (done !== undefined) {
-                    Chats[chat].sendMessage(message).then(function () {
-                        done(true);
-                    });
-                } else {
-                    Chats[chat].sendMessage(message);
-                }
-                return true;
-            } catch (error) {
-                return false;
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+        try {
+            if (done !== undefined) {
+                chat.sendMessage(message).then(function () {
+                    done(true);
+                });
+            } else {
+                chat.sendMessage(message);
             }
+            return true;
+        } catch (error) {
+            if (done !== undefined) done(false)
+            return false;
         }
     }
+    if (done !== undefined) done(false)
     return false;
 };
 
 
 window.WAPI.sendSeen = function (id, done) {
-    const Chats = window.Store.Chat.models;
-
-    for (const chat in Chats) {
-        if (isNaN(chat)) {
-            continue;
-        }
-
-        let temp = {};
-        temp.name = Chats[chat].formattedTitle;
-        temp.id = typeof Chats[chat].id == "string" ? Chats[chat].id : Chats[chat].id._serialized;
-        id = typeof id == "string" ? id : id._serialized;
-                
-        if (temp.id === id) {
-            if (done !== undefined) {
-                Chats[chat].sendSeen(false).then(function () {
-                    done(true);
-                });
-                return true;
-            } else {
-                Chats[chat].sendSeen(false);
-                return true;
-            }
+    var chat = window.WAPI.getChat(id);
+    if (chat !== undefined) {
+        if (done !== undefined) {
+            chat.sendSeen(false).then(function () {
+                done(true);
+            });
+            return true;
+        } else {
+            chat.sendSeen(false);
+            return true;
         }
     }
-    if (done !== undefined) {
-        done();
-    } else {
-        return false;
-    }
+    if (done !== undefined) done();
     return false;
 };
 
@@ -1243,24 +1204,18 @@ window.WAPI.getBufferedNewMessages = function(done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-    chatid = typeof chatid == "string" ? chatid : chatid._serialized;
     var chat = WAPI.getChat(chatid);
     if (chat !== undefined) {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection();
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
-            try{
-                media.sendToChat(chat, {caption: caption});
-                done(true);
-            }catch(e){
-                //WAPI.sendMessageToID(chatid,'Olá')
-                console.log("Erro ao enviar imagem: "+e);
-                done(false);
-            }
+            media.sendToChat(chat, {caption: caption});
+            if (done !== undefined) done(true);
         });
     } else {
-        done(false);
+        if (done !== undefined) done(false);
+        return false;
     }
     return true;
 };
