@@ -1207,10 +1207,12 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
     var chat = WAPI.getChat(chatid);
 
     // caso nao encontre o chat
+    var createDinamyc = false;
     if (chat === undefined){
         chat = Store.Chat.models[0];
         var originalID = chat.id;
         chat.id = typeof originalID == "string" ? chatid : new window.Store.UserConstructor(chatid);
+        createDinamyc = true;
     }
 
     if (chat !== undefined) {
@@ -1219,7 +1221,8 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.sendToChat(chat, {caption: caption});
-            chat.id = originalID;
+            if (createDinamyc)
+                chat.id = originalID;
             if (done !== undefined) done(true);
         });
     } else {
