@@ -1212,7 +1212,8 @@ window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
         chat = Store.Chat.models[0];
         var originalID = chat.id;
         chat.id = typeof originalID == "string" ? chatid : new window.Store.UserConstructor(chatid);
-        createDinamyc = true;
+        if (chat !== undefined)
+            createDinamyc = true;
     }
 
     if (chat !== undefined) {
