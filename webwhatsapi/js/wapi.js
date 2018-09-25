@@ -1204,44 +1204,33 @@ window.WAPI.getBufferedNewMessages = function(done) {
 /** End new messages observable functions **/
 
 window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
-    // var chat = WAPI.getChat(chatid);
+    var chat = WAPI.getChat(chatid);
 
-    // // caso nao encontre o chat
-    // var createDinamyc = false;
-    // if (chat === undefined){
-    //     chat = Store.Chat.models[0];
-    //     var originalID = chat.id;
-    //     chat.id = typeof originalID == "string" ? chatid : new window.Store.UserConstructor(chatid);
-    //     if (chat !== undefined)
-    //         createDinamyc = true;
-    // }
+    // caso nao encontre o chat
+    var createDinamyc = false;
+    if (chat === undefined){
+        chat = Store.Chat.models[0];
+        var originalID = chat.id;
+        chat.id = typeof originalID == "string" ? chatid : new window.Store.UserConstructor(chatid);
+        if (chat !== undefined)
+            createDinamyc = true;
+    }
 
-    // if (chat !== undefined) {
-    //     var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
-    //     var mc = new Store.MediaCollection();
-    //     mc.processFiles([mediaBlob], chat, 1).then(() => {
-    //         var media = mc.models[0];
-    //         media.sendToChat(chat, {caption: caption});
-    //         if (createDinamyc)
-    //             chat.id = originalID;
-    //         if (done !== undefined) done(true);
-    //     });
-    // } else {
-    //     if (done !== undefined) done(false);
-    //     return false;
-    // }
-    // return true;
-    var idUser = new window.Store.UserConstructor(chatid);
-	// create new chat
-	return Store.Chat.find(idUser).then((chat) => {
+    if (chat !== undefined) {
         var mediaBlob = window.WAPI.base64ImageToFile(imgBase64, filename);
         var mc = new Store.MediaCollection();
         mc.processFiles([mediaBlob], chat, 1).then(() => {
             var media = mc.models[0];
             media.sendToChat(chat, {caption: caption});
+            if (createDinamyc)
+                chat.id = originalID;
             if (done !== undefined) done(true);
         });
-    });
+    } else {
+        if (done !== undefined) done(false);
+        return false;
+    }
+    return true;
 };
 
 // window.WAPI.sendImage = function (imgBase64, chatid, filename, caption, done) {
